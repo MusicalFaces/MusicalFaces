@@ -34,23 +34,21 @@ public class NetworkUtils {
             case 2:  append1 = "songs-about-anger";//contempt
                     append2 = "ranker-music";
                 break;
-            case 3:  append1 = "most-overplayed-songs-of-2013";//disgust
-                     append2 = "ranker-music";
+            case 3:  append1 = "worst-songs-of-2015";//disgust
+                     append2 = "jacob-shelton";
                 break;
-            case 4:  append1 = "most-overplayed-songs-of-2013";//fear
-                    append2 = "ranker-music";
+            case 4:  append1 = "best-halloween-songs";//fear
+                    append2 = "music-lover";
                 break;
-            case 5:  append1 = "the-best-happy-songs-of-all-time";//happiness
-                    append2 = "trisha-hershberger";
-                break;
-            case 6:  append1 = "best-songs-about-peace";//neutral
+            case 5:  append1 = "best-songs-about-happiness";//happiness
                     append2 = "reference";
                 break;
-            case 7:  append1 = "songs-about-sadness";//sadness
-                     append2 = "ranker-music";
+            case 6:  append1 = "ten-songs-to-make-you-relax-";
+//                "best-songs-about-peace";
+                    append2 = "crawdidd88";
                 break;
-            case 8:  append1 = "the-best-happy-songs-of-all-time";//surprise
-                    append2 = "trisha-hershberger";
+            case 7:  append1 = "songs-about-pain";//sadness
+                     append2 = "ranker-music";
                 break;
         }
         Uri builtUri = Uri.parse(RANKER_BASE_URL).buildUpon()
