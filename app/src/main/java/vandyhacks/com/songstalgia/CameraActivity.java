@@ -5,15 +5,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.flurgle.camerakit.CameraListener;
 import com.flurgle.camerakit.CameraView;
@@ -30,11 +35,14 @@ import com.microsoft.projectoxford.vision.rest.VisionServiceException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 
@@ -46,6 +54,10 @@ import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
 import vandyhacks.com.songstalgia.model.Prediction;
+
+import static android.R.attr.width;
+import static vandyhacks.com.songstalgia.R.attr.height;
+import static vandyhacks.com.songstalgia.R.attr.imageButtonStyle;
 
 /**
  * Created by anip on 21/10/17.
@@ -65,6 +77,8 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
         cameraView = (CameraView) findViewById(R.id.camera);
+        cameraView.setJpegQuality(100);
+
         prediction = new Prediction();
         prediction.setMood(-1);
         if (client == null) {
@@ -77,7 +91,7 @@ public class CameraActivity extends AppCompatActivity {
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                cameraView.captureImage();
+                cameraView.captureImage();
             }
         });
 //        cameraView.captureImage();
@@ -85,19 +99,62 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onPictureTaken(byte[] jpeg) {
                 super.onPictureTaken(jpeg);
+//                jpeg=jpeg.trim();
+//                byte[] base64converted= Base64.decode(jpeg,Base64.DEFAULT);
                 image = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length);
-                System.out.println(image);
+//                System.out.println(image);
+//                saveImage(image);
+//                Matrix matrix = new Matrix();
+//                matrix.setRotate(-90);
+//                image = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), matrix, true);
+                Bitmap bJPGcompress = codec(image, Bitmap.CompressFormat.JPEG, 70);
+                image = bJPGcompress;
                 new FaceRequest(false).execute();
             }
         });
         Drawable myDrawable = getResources().getDrawable(R.drawable.sad);
         Bitmap anImage = ((BitmapDrawable) myDrawable).getBitmap();
-        image = anImage;
+//        image = anImage;
         System.out.println("image" + image);
-        new FaceRequest(false).execute();
+//        new FaceRequest(false).execute();
 //        new FaceRequest(true).execute();
     }
+    private static Bitmap codec(Bitmap src, Bitmap.CompressFormat format,
+                                int quality) {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        src.compress(format, quality, os);
 
+        byte[] array = os.toByteArray();
+        return BitmapFactory.decodeByteArray(array, 0, array.length);
+    }
+    private void saveImage(Bitmap showedImgae) {
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/DCIM/myCapturedImages");
+        myDir.mkdirs();
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "FILENAME-"+ n +".jpg";
+        File file = new File (myDir, fname);
+        if (file.exists ()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            showedImgae.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            Toast.makeText(CameraActivity.this, "Image Saved", Toast.LENGTH_SHORT).show();
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        Uri contentUri = Uri.fromFile(file);
+        mediaScanIntent.setData(contentUri);
+        getApplicationContext().sendBroadcast(mediaScanIntent);
+
+    }
 
     @Override
     protected void onStart() {
@@ -313,7 +370,7 @@ public class CameraActivity extends AppCompatActivity {
                         Log.i("hell", String.format("\t happiness: %1$.5f\n", result.get(0).scores.happiness));
                         list[++i] = (double) result.get(0).scores.happiness;
                         Log.i("hell", String.format("\t neutral: %1$.5f\n", result.get(0).scores.neutral));
-                        list[++i] = (double) result.get(0).scores.neutral;
+                        list[++i] = 0.0000;
                         Log.i("hell", String.format("\t sadness: %1$.5f\n", result.get(0).scores.sadness));
                         list[++i] = (double) result.get(0).scores.sadness;
                         Log.i("hell", String.format("\t surprise: %1$.5f\n", result.get(0).scores.surprise));

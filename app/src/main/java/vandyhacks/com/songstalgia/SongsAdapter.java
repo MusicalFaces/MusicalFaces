@@ -73,10 +73,10 @@ class SongsAdapter extends ArrayAdapter<SongDetails> implements View.OnClickList
             viewHolder = (ViewHolder) convertView.getTag();
             result=convertView;
         }
-        getVideoInfo(songs.get(position).getUrl(), songs.get(position));
+//        getVideoInfo(songs.get(position).getUrl(), songs.get(position));
         viewHolder.title.setText(songs.get(position).getTitle());
         viewHolder.artist.setText(songs.get(position).getArtist());
-        Picasso.with(getContext()).load(songs.get(position).getCover()).into(viewHolder.cover);
+        Picasso.with(getContext()).load(songs.get(position).getCover()).error(R.drawable.skyline).into(viewHolder.cover);
 //        viewHolder.info.setOnClickListener(this);
 //        viewHolder.info.setTag(position);
 
@@ -116,29 +116,27 @@ class SongsAdapter extends ArrayAdapter<SongDetails> implements View.OnClickList
 
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray jsonArray = jsonObject.getJSONArray("items");
+                            if(jsonArray.length()>0) {
+                                JSONObject object = jsonArray.getJSONObject(0);
+                                JSONObject snippet = object.getJSONObject("snippet");
+                                JSONObject thumbnail = snippet.getJSONObject("thumbnails");
+                                JSONObject cover = thumbnail.getJSONObject("default");
+                                String[] titleString = snippet.getString("title").split(" - ");
+                                songDetails.setCover(cover.getString("url"));
+                                if (titleString.length == 2) {
+                                    songDetails.setTitle(titleString[1]);
+                                    songDetails.setArtist(titleString[0]);
+                                } else {
+                                    songDetails.setTitle(titleString[0]);
+                                    songDetails.setArtist("Unknown Artist");
+                                }
 
-                            JSONObject object = jsonArray.getJSONObject(0);
-                            JSONObject snippet = object.getJSONObject("snippet");
-                            JSONObject thumbnail = snippet.getJSONObject("thumbnails");
-                            JSONObject cover = thumbnail.getJSONObject("default");
-                            String[] titleString = snippet.getString("title").split(" - ");
-                            songDetails.setCover(cover.getString("url"));
-                            if(titleString.length==2) {
-                                songDetails.setTitle(titleString[1]);
-                                songDetails.setArtist(titleString[0]);
-                            }
-                            else {
-                                songDetails.setTitle(titleString[0]);
-                                songDetails.setArtist("Unknown Artist");
-                            }
-
-                            String title = snippet.getString("title");
+                                String title = snippet.getString("title");
 //                            String img =
 
 
-
-                            Log.d("stuff: ", "" + title);
-
+                                Log.d("stuff: ", "" + title);
+                            }
 
                         } catch (JSONException e) {
                             e.printStackTrace();

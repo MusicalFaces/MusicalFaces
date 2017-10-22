@@ -54,7 +54,7 @@ public class SongActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //        actionBar.setDisplayHomeAsUpEnabled(true);
         songResultsTextView = (TextView) findViewById(R.id.song_results);
-        makeSearchQuery(6);
+        makeSearchQuery(mood);
 
     }
 
@@ -184,29 +184,29 @@ public class SongActivity extends AppCompatActivity {
 
                             JSONObject jsonObject = new JSONObject(response);
                             JSONArray jsonArray = jsonObject.getJSONArray("items");
+                            if(jsonArray.length()>0) {
+                                JSONObject object = jsonArray.getJSONObject(0);
+                                JSONObject snippet = object.getJSONObject("snippet");
+                                JSONObject thumbnail = snippet.getJSONObject("thumbnails");
+                                JSONObject cover = thumbnail.getJSONObject("default");
+                                String[] titleString = snippet.getString("title").split(" - ");
+                                songDetails.setUrl(url);
+                                songDetails.setCover(cover.getString("url"));
+                                if (titleString.length == 2) {
+                                    songDetails.setTitle(titleString[1]);
+                                    songDetails.setArtist(titleString[0]);
+                                } else {
+                                    songDetails.setTitle(titleString[0]);
+                                    songDetails.setArtist(titleString[0]);
+                                }
 
-                            JSONObject object = jsonArray.getJSONObject(0);
-                            JSONObject snippet = object.getJSONObject("snippet");
-                            JSONObject thumbnail = snippet.getJSONObject("thumbnails");
-                            JSONObject cover = thumbnail.getJSONObject("default");
-                            String[] titleString = snippet.getString("title").split(" - ");
-                            songDetails.setUrl(url);
-                            songDetails.setCover(cover.getString("url"));
-                            if(titleString.length==2){
-                                songDetails.setTitle(titleString[1]);
-                                songDetails.setArtist(titleString[0]);
-                            }
-                            else {
-                                songDetails.setTitle(titleString[0]);
-                                songDetails.setArtist(titleString[0]);
-                            }
-                            String title = snippet.getString("title");
+                                String title = snippet.getString("title");
 //                            String img =
-                            songsAdapter.notifyDataSetChanged();
+                                songsAdapter.notifyDataSetChanged();
 
 
-                            Log.d("stuff: ", "" + title);
-
+                                Log.d("stuff: ", "" + title);
+                            }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
