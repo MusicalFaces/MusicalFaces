@@ -32,12 +32,20 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Response;
+import vandyhacks.com.songstalgia.model.Prediction;
 
 /**
  * Created by anip on 21/10/17.
@@ -49,12 +57,16 @@ public class CameraActivity extends AppCompatActivity {
     private Bitmap image;
     private VisionServiceClient client;
     private EmotionServiceClient emotion_client;
+    private Prediction prediction;
+//    private ServiceCall mSentimentCall;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
         cameraView = (CameraView) findViewById(R.id.camera);
+        prediction = new Prediction();
+        prediction.setMood(-1);
         if (client == null) {
             client = new VisionServiceRestClient(getString(R.string.subscription_key), "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0");
         }
@@ -129,12 +141,13 @@ public class CameraActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 AnalysisResult result = gson.fromJson(data, AnalysisResult.class);
                 System.out.println("result" + data);
+
                 System.out.println("Image description: " + result.description.captions.get(0).text.toString() + "\n");
                 System.out.println("Image Dominant Colors: " + result.color.accentColor + "\n");
-                for(String color : result.color.dominantColors){
+                for (String color : result.color.dominantColors) {
                     System.out.println(color + "\n");
                 }
-                if ( result.faces.size() > 0 ) {
+                if (result.faces.size() > 0) {
                     new FaceRequest(false).execute();
                 }
             }
@@ -285,28 +298,56 @@ public class CameraActivity extends AppCompatActivity {
                     paint.setStyle(Paint.Style.STROKE);
                     paint.setStrokeWidth(5);
                     paint.setColor(Color.RED);
-
-                    for (RecognizeResult r : result) {
+                    double[] list;
+                    int i = -1;
+                        list = new double[8];
                         Log.i("hell", String.format("\nFace #%1$d \n", count));
-                        Log.i("hell", (String.format("\t anger: %1$.5f\n", r.scores.anger)));
-                        Log.i("hell", String.format("\t contempt: %1$.5f\n", r.scores.contempt));
-                        Log.i("hell", String.format("\t disgust: %1$.5f\n", r.scores.disgust));
-                        Log.i("hell", String.format("\t fear: %1$.5f\n", r.scores.fear));
-                        Log.i("hell", String.format("\t happiness: %1$.5f\n", r.scores.happiness));
-                        Log.i("hell", String.format("\t neutral: %1$.5f\n", r.scores.neutral));
-                        Log.i("hell", String.format("\t sadness: %1$.5f\n", r.scores.sadness));
-                        Log.i("hell", String.format("\t surprise: %1$.5f\n", r.scores.surprise));
+                        Log.i("hell", (String.format("\t anger: %1$.5f\n", result.get(0).scores.anger)));
+                        list[++i] = (double) result.get(0).scores.anger;
+                        Log.i("hell", String.format("\t contempt: %1$.5f\n", result.get(0).scores.contempt));
+                        list[++i] = (double) result.get(0).scores.contempt;
+                        Log.i("hell", String.format("\t disgust: %1$.5f\n", result.get(0).scores.disgust));
+                        list[++i] = (double) result.get(0).scores.disgust;
+                        Log.i("hell", String.format("\t fear: %1$.5f\n", result.get(0).scores.fear));
+                        list[++i] = (double) result.get(0).scores.fear;
+                        Log.i("hell", String.format("\t happiness: %1$.5f\n", result.get(0).scores.happiness));
+                        list[++i] = (double) result.get(0).scores.happiness;
+                        Log.i("hell", String.format("\t neutral: %1$.5f\n", result.get(0).scores.neutral));
+                        list[++i] = (double) result.get(0).scores.neutral;
+                        Log.i("hell", String.format("\t sadness: %1$.5f\n", result.get(0).scores.sadness));
+                        list[++i] = (double) result.get(0).scores.sadness;
+                        Log.i("hell", String.format("\t surprise: %1$.5f\n", result.get(0).scores.surprise));
+                        list[++i] = (double) result.get(0).scores.surprise;
 //                        mEditText.append(String.format("\t face rectangle: %d, %d, %d, %d", r.faceRectangle.left, r.faceRectangle.top, r.faceRectangle.width, r.faceRectangle.height));
-                        Intent intent = new Intent(CameraActivity.this, StreamActivity.class);
-                        startActivity(intent);
+//                        Intent intent = new Intent(CameraActivity.this, StreamActivity.class);
+//                        startActivity(intent);
 //                        String title = getVideoTitle("https://www.youtube.com/watch?v=fhWaJi1Hsfo");
 //                        System.out.println(title);
 
+
+//                    int mood = Collections.max(list).;
+                    int index = 0;
+                    double largest = Double.MIN_VALUE;
+                    for (int k = 0; k < list.length; k++) {
+                        if (list[k] > largest) {
+                            largest = list[k];
+                            index = k;
+                        }
                     }
+
+                    prediction.setMood(index + 1);
+                    Log.i("hell", String.valueOf(prediction.getMood()));
+                    Intent intent = new Intent(CameraActivity.this, SongActivity.class);
+                    intent.putExtra("mood", prediction.getMood());
+                    startActivity(intent);
+
+//                    new ImageRecognizer().execute();
+
                 }
             }
         }
     }
+
     public static String getVideoTitle(String youtubeVideoUrl) {
         try {
             if (youtubeVideoUrl != null) {
@@ -324,3 +365,7 @@ public class CameraActivity extends AppCompatActivity {
         return null;
     }
 }
+
+
+
+

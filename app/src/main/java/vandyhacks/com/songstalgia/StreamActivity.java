@@ -33,14 +33,15 @@ import java.util.List;
 public class StreamActivity extends YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener{
     private static final int RECOVERY_REQUEST = 1;
     private YouTubePlayerView youTubeView;
-
+    private String url;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stream);
-
+        url = getIntent().getStringExtra("url");
         youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
         youTubeView.initialize(Config.YOUTUBE_API_KEY, this);
+
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -57,9 +58,9 @@ public class StreamActivity extends YouTubeBaseActivity implements YouTubePlayer
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
         if (!b) {
             ArrayList<String> videos = new ArrayList<String>();
-            videos.add("XCElIIYx_8s");
-            videos.add("fhWaJi1Hsfo");
-            youTubePlayer.cueVideos(videos); // Plays https://www.youtube.com/watch?v=fhWaJi1Hsfo
+//            videos.add("XCElIIYx_8s");
+//            videos.add("fhWaJi1Hsfo");
+            youTubePlayer.cueVideo(url); // Plays https://www.youtube.com/watch?v=fhWaJi1Hsfo
 
         }
     }
@@ -89,4 +90,5 @@ public class StreamActivity extends YouTubeBaseActivity implements YouTubePlayer
             Toast.makeText(this, error, Toast.LENGTH_LONG).show();
         }
     }
+
 }
