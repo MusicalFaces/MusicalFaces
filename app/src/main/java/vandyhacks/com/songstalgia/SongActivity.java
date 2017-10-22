@@ -5,9 +5,15 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
+import vandyhacks.com.songstalgia.model.SongDetails;
 import vandyhacks.com.songstalgia.utilities.NetworkUtils;
 
 /**
@@ -52,15 +58,73 @@ public class SongActivity extends AppCompatActivity {
             return searchResults;
         }
 
+        protected ArrayList<SongDetails> parseHtml(String searchResults){
+            //"\"Hello\""  data-vpi-videoid="'(.*?)'"
+            Document doc = Jsoup.parse(searchResults);
+
+            ArrayList<SongDetails> songsList = new ArrayList<SongDetails>();
+
+
+            //video links
+            for (Element e : doc.getElementsByClass("videoPlayer")) {
+                SongDetails song = new SongDetails();
+
+                song.setUrl(e.attr("data-vpi-videoid"));
+                songsList.add(song);
+            }
+
+//            int i=0;
+//            for (Element e : doc.getElementsByClass("listItem__blather")) {
+//
+//
+//                    if(e.attr("itemprop").contains("description"))
+//                        songsList.get(i).setArtist(e.text());
+//
+//                    i++;
+//
+//            }
+//
+//            i=0;
+//
+//            for (Element e : doc.getElementsByClass("listItem__title")) {
+//
+////                if((e.child(1).getElementsByClass("listItem_title").contains("name") && e.attr("rel").contains("nofollow")))
+//                if(i<30) {
+//                    String[] strings = e.html().split("<");
+//                    System.out.println("ytytyty" + strings[0] + " " + i);//.("listItem_title").text());
+//                    songsList.get(i).setTitle(strings[0]);
+//
+//                }
+//                i++;
+//
+//
+//            }
+//
+//s
+
+            return songsList;
+
+
+
+
+        }
         // COMPLETED (3) Override onPostExecute to display the results in the TextView
         @Override
         protected void onPostExecute(String searchResults) {
             if (searchResults != null && !searchResults.equals("")) {
 
+                for(SongDetails song: parseHtml(searchResults)){
+                    System.out.println("----------" + song.getArtist() + " " + song.getTitle() + " " + song.getUrl());
+                }
+
+
+
                 songResultsTextView.setText(searchResults);
+
 
                 /*
                 Context context = getApplicationContext();
+
 
                 int duration = Toast.LENGTH_LONG;
 
