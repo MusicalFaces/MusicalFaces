@@ -37,7 +37,7 @@ public class SongActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song);
         listView = (ListView) findViewById(R.id.listView);
-        mood = getIntent().getIntExtra("mood",-1);
+        mood = getIntent().getIntExtra("mood",0);
         Log.i("hell", String.valueOf(mood));
         songResultsTextView = (TextView) findViewById(R.id.song_results);
         makeSearchQuery(mood);

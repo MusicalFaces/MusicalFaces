@@ -14,6 +14,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 
 import com.flurgle.camerakit.CameraListener;
 import com.flurgle.camerakit.CameraView;
@@ -23,28 +25,21 @@ import com.microsoft.projectoxford.emotion.EmotionServiceRestClient;
 import com.microsoft.projectoxford.emotion.contract.FaceRectangle;
 import com.microsoft.projectoxford.emotion.contract.RecognizeResult;
 import com.microsoft.projectoxford.emotion.rest.EmotionServiceException;
+import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.vision.VisionServiceClient;
 import com.microsoft.projectoxford.vision.VisionServiceRestClient;
 import com.microsoft.projectoxford.vision.contract.AnalysisResult;
 import com.microsoft.projectoxford.vision.rest.VisionServiceException;
 
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import com.microsoft.projectoxford.face.FaceServiceRestClient;
-
-import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Response;
 import vandyhacks.com.songstalgia.model.Prediction;
 
 /**
@@ -58,13 +53,23 @@ public class CameraActivity extends AppCompatActivity {
     private VisionServiceClient client;
     private EmotionServiceClient emotion_client;
     private Prediction prediction;
+
+    private ImageView imageView;
+    private Button revengeButton;
+    private Button helpButton;
+
 //    private ServiceCall mSentimentCall;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+
         cameraView = (CameraView) findViewById(R.id.camera);
+        revengeButton = (Button) findViewById(R.id.revengeButton);
+        helpButton = (Button) findViewById(R.id.helpButton);
+        imageView = (ImageView) findViewById(R.id.imageView);
+
         prediction = new Prediction();
         prediction.setMood(-1);
         if (client == null) {
@@ -87,7 +92,36 @@ public class CameraActivity extends AppCompatActivity {
                 super.onPictureTaken(jpeg);
                 image = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length);
                 System.out.println(image);
+
+
                 new FaceRequest(false).execute();
+
+                cameraView.setVisibility(View.INVISIBLE);
+                imageView.setImageBitmap(image);
+                imageView.setVisibility(View.VISIBLE);
+                revengeButton.setVisibility(View.VISIBLE);
+
+                revengeButton.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        // Perform action on click
+
+                        Intent intent = new Intent(CameraActivity.this, SongActivity.class);
+                        intent.putExtra("mood", prediction.getMood());
+                        startActivity(intent);
+
+                    }
+                });
+                helpButton.setVisibility(View.VISIBLE);
+                helpButton.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        // Perform action on click
+                        Intent intent = new Intent(CameraActivity.this, SongActivity.class);
+                        intent.putExtra("mood", prediction.getMood());
+                        startActivity(intent);
+                    }
+                });
+
+
             }
         });
         Drawable myDrawable = getResources().getDrawable(R.drawable.sad);
@@ -301,22 +335,22 @@ public class CameraActivity extends AppCompatActivity {
                     double[] list;
                     int i = -1;
                         list = new double[8];
-                        Log.i("hell", String.format("\nFace #%1$d \n", count));
-                        Log.i("hell", (String.format("\t anger: %1$.5f\n", result.get(0).scores.anger)));
+                        Log.i("------", String.format("\nFace #%1$d \n", count));
+                        Log.i("------", (String.format("\t anger: %1$.5f\n", result.get(0).scores.anger)));
                         list[++i] = (double) result.get(0).scores.anger;
-                        Log.i("hell", String.format("\t contempt: %1$.5f\n", result.get(0).scores.contempt));
+                        Log.i("------", String.format("\t contempt: %1$.5f\n", result.get(0).scores.contempt));
                         list[++i] = (double) result.get(0).scores.contempt;
-                        Log.i("hell", String.format("\t disgust: %1$.5f\n", result.get(0).scores.disgust));
+                        Log.i("------", String.format("\t disgust: %1$.5f\n", result.get(0).scores.disgust));
                         list[++i] = (double) result.get(0).scores.disgust;
-                        Log.i("hell", String.format("\t fear: %1$.5f\n", result.get(0).scores.fear));
+                        Log.i("------", String.format("\t fear: %1$.5f\n", result.get(0).scores.fear));
                         list[++i] = (double) result.get(0).scores.fear;
-                        Log.i("hell", String.format("\t happiness: %1$.5f\n", result.get(0).scores.happiness));
+                        Log.i("------", String.format("\t happiness: %1$.5f\n", result.get(0).scores.happiness));
                         list[++i] = (double) result.get(0).scores.happiness;
-                        Log.i("hell", String.format("\t neutral: %1$.5f\n", result.get(0).scores.neutral));
+                        Log.i("------", String.format("\t neutral: %1$.5f\n", result.get(0).scores.neutral));
                         list[++i] = (double) result.get(0).scores.neutral;
-                        Log.i("hell", String.format("\t sadness: %1$.5f\n", result.get(0).scores.sadness));
+                        Log.i("------", String.format("\t sadness: %1$.5f\n", result.get(0).scores.sadness));
                         list[++i] = (double) result.get(0).scores.sadness;
-                        Log.i("hell", String.format("\t surprise: %1$.5f\n", result.get(0).scores.surprise));
+                        Log.i("------", String.format("\t surprise: %1$.5f\n", result.get(0).scores.surprise));
                         list[++i] = (double) result.get(0).scores.surprise;
 //                        mEditText.append(String.format("\t face rectangle: %d, %d, %d, %d", r.faceRectangle.left, r.faceRectangle.top, r.faceRectangle.width, r.faceRectangle.height));
 //                        Intent intent = new Intent(CameraActivity.this, StreamActivity.class);
@@ -337,9 +371,7 @@ public class CameraActivity extends AppCompatActivity {
 
                     prediction.setMood(index + 1);
                     Log.i("hell", String.valueOf(prediction.getMood()));
-                    Intent intent = new Intent(CameraActivity.this, SongActivity.class);
-                    intent.putExtra("mood", prediction.getMood());
-                    startActivity(intent);
+
 
 //                    new ImageRecognizer().execute();
 
