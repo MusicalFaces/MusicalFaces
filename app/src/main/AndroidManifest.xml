@@ -25,6 +25,7 @@
         </activity>
         <activity android:name=".StreamActivity"/>
         <activity android:name=".SongActivity" />
+        <activity android:name=".ImageActivity" />
     </application>
 
 </manifest>

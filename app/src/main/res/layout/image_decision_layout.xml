@@ -1,37 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:camerakit="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
+    android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <com.flurgle.camerakit.CameraView
-        android:id="@+id/camera"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        camerakit:ckMethod="still">
-    </com.flurgle.camerakit.CameraView>
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/floatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_camera_black_24dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="20dp"/>
     <ImageView android:id="@+id/imageView"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:visibility="invisible"
+        android:visibility="visible"
         />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="Mood Detected. Choose one option to continue...."/>
     <Button android:id="@+id/revengeButton"
         android:layout_width="80dp"
         android:layout_height="40dp"
         android:text="REVENGE"
         android:layout_marginLeft="250dp"
         android:layout_marginTop="400dp"
-        android:visibility="invisible"
+        android:visibility="visible"
         android:background="@color/colorAccent"
         android:textColor="@color/cardview_light_background"
         />
@@ -42,7 +32,7 @@
         android:text="HELP"
         android:layout_marginLeft="50dp"
         android:layout_marginTop="400dp"
-        android:visibility="invisible"
+        android:visibility="visible"
         android:background="@color/colorAccent"
         android:textColor="@color/cardview_light_background"
         />
