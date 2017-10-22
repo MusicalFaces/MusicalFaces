@@ -14,8 +14,8 @@ public class MoodHashes {
     MoodHashes(){
 
         //revenge hashes init
-        revengeHash.put(0,5);
-        revengeHash.put(-1,5);
+        revengeHash.put(0,1);//default angry
+        revengeHash.put(-1,1);//default angry
         revengeHash.put(1,3); //anger to annoyed
         revengeHash.put(2,7); //contempt to sadness
         revengeHash.put(3,3); //annoy to annoy
@@ -26,8 +26,8 @@ public class MoodHashes {
         revengeHash.put(8,1); //surprise to anger
 
         //help hashes init
-        helpHash.put(0,5);
-        helpHash.put(-1,5);
+        helpHash.put(0,1);//default angry
+        helpHash.put(-1,1);//default angry
         helpHash.put(1,6); //angry to peace
         helpHash.put(2,5); //contempt to happiness
         helpHash.put(3,6); //annoy/disgust to peace
