@@ -57,6 +57,7 @@ public class CameraActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button revengeButton;
     private Button helpButton;
+    private MoodHashes moodHashes;
 
 //    private ServiceCall mSentimentCall;
 
@@ -70,6 +71,8 @@ public class CameraActivity extends AppCompatActivity {
         helpButton = (Button) findViewById(R.id.helpButton);
         imageView = (ImageView) findViewById(R.id.imageView);
 
+        moodHashes = new MoodHashes();
+
         prediction = new Prediction();
         prediction.setMood(-1);
         if (client == null) {
@@ -82,7 +85,7 @@ public class CameraActivity extends AppCompatActivity {
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                cameraView.captureImage();
+                cameraView.captureImage();
             }
         });
 //        cameraView.captureImage();
@@ -90,33 +93,43 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onPictureTaken(byte[] jpeg) {
                 super.onPictureTaken(jpeg);
-                image = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length);
-                System.out.println(image);
+
+
+               image = BitmapFactory.decodeByteArray(jpeg , 0, jpeg.length);
+
+                //System.out.println(image);
 
 
                 new FaceRequest(false).execute();
 
                 cameraView.setVisibility(View.INVISIBLE);
-                imageView.setImageBitmap(image);
+//                imageView.setImageBitmap(image);
                 imageView.setVisibility(View.VISIBLE);
                 revengeButton.setVisibility(View.VISIBLE);
+                imageView.setImageBitmap(image);
 
                 revengeButton.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         // Perform action on click
 
+                        System.out.println("---------------------------");
                         Intent intent = new Intent(CameraActivity.this, SongActivity.class);
-                        intent.putExtra("mood", prediction.getMood());
+                        int mappedMood = moodHashes.getrevengeHashValue(prediction.getMood());
+                        System.out.println("--------------------" + mappedMood);
+                        intent.putExtra("mood", mappedMood);
                         startActivity(intent);
 
                     }
                 });
+
+
                 helpButton.setVisibility(View.VISIBLE);
                 helpButton.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         // Perform action on click
                         Intent intent = new Intent(CameraActivity.this, SongActivity.class);
-                        intent.putExtra("mood", prediction.getMood());
+                        int mappedMood = moodHashes.getHelpHashValue(prediction.getMood());
+                        intent.putExtra("mood", mappedMood);
                         startActivity(intent);
                     }
                 });
@@ -128,7 +141,7 @@ public class CameraActivity extends AppCompatActivity {
         Bitmap anImage = ((BitmapDrawable) myDrawable).getBitmap();
         image = anImage;
         System.out.println("image" + image);
-        new FaceRequest(false).execute();
+//        new FaceRequest(false).execute();
 //        new FaceRequest(true).execute();
     }
 

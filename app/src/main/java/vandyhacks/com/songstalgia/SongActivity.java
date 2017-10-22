@@ -1,6 +1,5 @@
 package vandyhacks.com.songstalgia;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -54,7 +53,7 @@ public class SongActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //        actionBar.setDisplayHomeAsUpEnabled(true);
         songResultsTextView = (TextView) findViewById(R.id.song_results);
-        makeSearchQuery(6);
+        makeSearchQuery(mood);
 
     }
 
