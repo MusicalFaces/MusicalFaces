@@ -1,5 +1,6 @@
 package vandyhacks.com.songstalgia;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -30,9 +31,13 @@ import com.microsoft.projectoxford.vision.rest.VisionServiceException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
+
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 /**
  * Created by anip on 21/10/17.
@@ -63,7 +68,7 @@ public class CameraActivity extends AppCompatActivity {
 //                cameraView.captureImage();
             }
         });
-        cameraView.captureImage();
+//        cameraView.captureImage();
         cameraView.setCameraListener(new CameraListener() {
             @Override
             public void onPictureTaken(byte[] jpeg) {
@@ -73,11 +78,11 @@ public class CameraActivity extends AppCompatActivity {
                 new FaceRequest(false).execute();
             }
         });
-        Drawable myDrawable = getResources().getDrawable(R.drawable.happy);
+        Drawable myDrawable = getResources().getDrawable(R.drawable.sad);
         Bitmap anImage = ((BitmapDrawable) myDrawable).getBitmap();
         image = anImage;
         System.out.println("image" + image);
-//        new FaceRequest(false).execute();
+        new FaceRequest(false).execute();
 //        new FaceRequest(true).execute();
     }
 
@@ -292,11 +297,30 @@ public class CameraActivity extends AppCompatActivity {
                         Log.i("hell", String.format("\t sadness: %1$.5f\n", r.scores.sadness));
                         Log.i("hell", String.format("\t surprise: %1$.5f\n", r.scores.surprise));
 //                        mEditText.append(String.format("\t face rectangle: %d, %d, %d, %d", r.faceRectangle.left, r.faceRectangle.top, r.faceRectangle.width, r.faceRectangle.height));
-
+                        Intent intent = new Intent(CameraActivity.this, StreamActivity.class);
+                        startActivity(intent);
+//                        String title = getVideoTitle("https://www.youtube.com/watch?v=fhWaJi1Hsfo");
+//                        System.out.println(title);
 
                     }
                 }
             }
         }
+    }
+    public static String getVideoTitle(String youtubeVideoUrl) {
+        try {
+            if (youtubeVideoUrl != null) {
+                URL embededURL = new URL("http://www.youtube.com/oembed?url=" +
+                        youtubeVideoUrl + "&format=json"
+                );
+                System.out.println(embededURL);
+
+                return new JSONObject(IOUtils.toString(embededURL)).getString("title");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
