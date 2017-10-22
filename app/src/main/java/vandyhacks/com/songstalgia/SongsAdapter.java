@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,7 @@ import vandyhacks.com.songstalgia.model.SongDetails;
 
 class SongsAdapter extends ArrayAdapter<SongDetails> implements View.OnClickListener {
     Context mContext;
+    private ViewHolder viewHolder;
     private ArrayList<SongDetails> songs;
     public SongsAdapter(Context context, ArrayList<SongDetails> songs) {
         super(context, R.layout.song_item, songs);
@@ -54,13 +56,13 @@ class SongsAdapter extends ArrayAdapter<SongDetails> implements View.OnClickList
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        ViewHolder viewHolder = null;
+    public View getView(int position, View convertView, ViewGroup parent) {
+//        ViewHolder viewHolder = null;
         final View result;
         if(convertView==null){
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.song_item, parent, false);
+            convertView = inflater.inflate(R.layout.song_item, null);
             viewHolder.title = (TextView) convertView.findViewById(R.id.title);
             viewHolder.artist = (TextView) convertView.findViewById(R.id.artist);
             viewHolder.cover = (ImageView) convertView.findViewById(R.id.cover);
@@ -74,12 +76,17 @@ class SongsAdapter extends ArrayAdapter<SongDetails> implements View.OnClickList
         getVideoInfo(songs.get(position).getUrl(), songs.get(position));
         viewHolder.title.setText(songs.get(position).getTitle());
         viewHolder.artist.setText(songs.get(position).getArtist());
-        Picasso.with(getContext()).load(songs.get(position).getCover()).centerCrop().into(viewHolder.cover);
+        Picasso.with(getContext()).load(songs.get(position).getCover()).into(viewHolder.cover);
 //        viewHolder.info.setOnClickListener(this);
 //        viewHolder.info.setTag(position);
 
-        return result;
+        return convertView;
 
+    }
+
+    @Override
+    public int getCount() {
+        return songs.size();
     }
 
     @Override
@@ -116,8 +123,15 @@ class SongsAdapter extends ArrayAdapter<SongDetails> implements View.OnClickList
                             JSONObject cover = thumbnail.getJSONObject("default");
                             String[] titleString = snippet.getString("title").split(" - ");
                             songDetails.setCover(cover.getString("url"));
-                            songDetails.setTitle(titleString[1]);
-                            songDetails.setArtist(titleString[0]);
+                            if(titleString.length==2) {
+                                songDetails.setTitle(titleString[1]);
+                                songDetails.setArtist(titleString[0]);
+                            }
+                            else {
+                                songDetails.setTitle(titleString[0]);
+                                songDetails.setArtist("Unknown Artist");
+                            }
+
                             String title = snippet.getString("title");
 //                            String img =
 

@@ -1,15 +1,27 @@
 package vandyhacks.com.songstalgia;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -39,8 +51,10 @@ public class SongActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
         mood = getIntent().getIntExtra("mood",-1);
         Log.i("hell", String.valueOf(mood));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        actionBar.setDisplayHomeAsUpEnabled(true);
         songResultsTextView = (TextView) findViewById(R.id.song_results);
-        makeSearchQuery(mood);
+        makeSearchQuery(6);
 
     }
 
@@ -80,6 +94,7 @@ public class SongActivity extends AppCompatActivity {
                 SongDetails song = new SongDetails();
 
                 song.setUrl(e.attr("data-vpi-videoid"));
+                getVideoInfo(song.getUrl(), song);
                 songsList.add(song);
             }
 
@@ -137,6 +152,7 @@ public class SongActivity extends AppCompatActivity {
                     }
                 });
 
+
                 songResultsTextView.setText(searchResults);
 
 
@@ -150,6 +166,78 @@ public class SongActivity extends AppCompatActivity {
                 toast.show();
                 */
             }
+        }
+    }
+    private void getVideoInfo(final String url, final SongDetails songDetails){
+        RequestQueue queue = Volley.newRequestQueue(this);
+        // volley
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                "https://www.googleapis.com/youtube/v3/videos?id=" + url + "&key=" +
+                        Config.YOUTUBE_API_KEY +
+                        "&part=snippet,contentDetails,statistics,status",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try {
+
+                            JSONObject jsonObject = new JSONObject(response);
+                            JSONArray jsonArray = jsonObject.getJSONArray("items");
+
+                            JSONObject object = jsonArray.getJSONObject(0);
+                            JSONObject snippet = object.getJSONObject("snippet");
+                            JSONObject thumbnail = snippet.getJSONObject("thumbnails");
+                            JSONObject cover = thumbnail.getJSONObject("default");
+                            String[] titleString = snippet.getString("title").split(" - ");
+                            songDetails.setUrl(url);
+                            songDetails.setCover(cover.getString("url"));
+                            if(titleString.length==2){
+                                songDetails.setTitle(titleString[1]);
+                                songDetails.setArtist(titleString[0]);
+                            }
+                            else {
+                                songDetails.setTitle(titleString[0]);
+                                songDetails.setArtist(titleString[0]);
+                            }
+                            String title = snippet.getString("title");
+//                            String img =
+                            songsAdapter.notifyDataSetChanged();
+
+
+                            Log.d("stuff: ", "" + title);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+//                        Toast.makeText(MainActivity.activity_main, error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }){};
+
+        // Request (if not using Singleton [RequestHandler]
+        // RequestQueue requestQueue = Volley.newRequestQueue(this);
+        // requestQueue.add(stringRequest);
+        queue.add(stringRequest);
+        // Request with RequestHandler (Singleton: if created)
+//        RequestHandler.getC(getContext()).addToRequestQueue(stringRequest);
+
+
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // app icon in action bar clicked; goto parent activity.
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
